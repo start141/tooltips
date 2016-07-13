@@ -62,16 +62,23 @@ public class ToolTipsManager {
     }
 
     public View show(ToolTip toolTip, long duration) {
+        return show(toolTip, 0L, duration);
+    }
+
+    public View show(ToolTip toolTip, long startDelay, long duration) {
         View tipView = create(toolTip);
         if (tipView == null) {
             return null;
         }
 
+        if (startDelay < 0L) {
+            startDelay = 0L;
+        }
         // animate tip visibility
-        AnimationUtils.popup(tipView, mAnimationDuration).start();
+        AnimationUtils.popup(tipView, mAnimationDuration, startDelay).start();
 
-        if (duration > 0L && duration < mAnimationDuration) {
-            duration = mAnimationDuration;
+        if (duration > 0L && duration < startDelay + mAnimationDuration) {
+            duration = startDelay + mAnimationDuration;
         }
         if (duration > 0L) {
             dismiss(tipView, false, duration);

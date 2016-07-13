@@ -29,7 +29,7 @@ import android.view.animation.OvershootInterpolator;
  */
 class AnimationUtils {
 
-    static ObjectAnimator popup(final View view, final long duration) {
+    static ObjectAnimator popup(final View view, final long duration, long startDelay) {
         view.setAlpha(0);
         view.setVisibility(View.VISIBLE);
 
@@ -39,6 +39,7 @@ class AnimationUtils {
                 PropertyValuesHolder.ofFloat("scaleY", 0f, 1f));
         popup.setDuration(duration);
         popup.setInterpolator(new OvershootInterpolator());
+        popup.setStartDelay(startDelay);
 
         return popup;
     }
