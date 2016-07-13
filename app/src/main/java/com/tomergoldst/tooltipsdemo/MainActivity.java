@@ -96,8 +96,10 @@ public class MainActivity extends AppCompatActivity implements
     public void onWindowFocusChanged(boolean hasFocus) {
         super.onWindowFocusChanged(hasFocus);
 
-        ToolTip.Builder builder = new ToolTip.Builder(this, mTextView, mRootLayout, TIP_TEXT, ToolTip.POSITION_ABOVE);
+        ToolTip.Builder builder = new ToolTip.Builder(this, mTextView, mRootLayout, "显示位置", ToolTip.POSITION_ABOVE);
         builder.setAlign(mAlign);
+        builder.setOffsetY(-12);
+        builder.setDrawableAboveCenter(getResources().getDrawable(R.drawable.tooltip_bg_arrow_down));
         mToolTipsManager.show(builder.build());
     }
 
@@ -118,12 +120,15 @@ public class MainActivity extends AppCompatActivity implements
                 mToolTipsManager.findAndDismiss(mTextView);
                 builder = new ToolTip.Builder(this, mTextView, mRootLayout, text, ToolTip.POSITION_ABOVE);
                 builder.setAlign(mAlign);
+                builder.setOffsetY(-12);
+                builder.setDrawableAboveCenter(getResources().getDrawable(R.drawable.tooltip_bg_arrow_down));
                 mToolTipsManager.show(builder.build());
                 break;
             case R.id.button_below:
                 mToolTipsManager.findAndDismiss(mTextView);
                 builder = new ToolTip.Builder(this, mTextView, mRootLayout, text, ToolTip.POSITION_BELOW);
                 builder.setAlign(mAlign);
+                builder.setTextSize(80);
                 builder.setBackgroundColor(getResources().getColor(R.color.colorOrange));
                 mToolTipsManager.show(builder.build());
                 break;

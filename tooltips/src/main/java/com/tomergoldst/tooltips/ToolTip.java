@@ -17,6 +17,7 @@ limitations under the License.
 package com.tomergoldst.tooltips;
 
 import android.content.Context;
+import android.graphics.drawable.Drawable;
 import android.support.annotation.IntDef;
 import android.view.View;
 import android.view.ViewGroup;
@@ -56,10 +57,21 @@ public class ToolTip {
     private int mOffsetX;
     private int mOffsetY;
     private boolean mArrow;
+    private boolean mTintBackground;
     private int mBackgroundColor;
     private int mTextColor;
+    private int mTextSize;
     private float mElevation;
     private @Gravity int mTextGravity;
+    private Drawable mDrawableAboveLeft;
+    private Drawable mDrawableAboveCenter;
+    private Drawable mDrawableAboveRight;
+    private Drawable mDrawableBelowLeft;
+    private Drawable mDrawableBelowCenter;
+    private Drawable mDrawableBelowRight;
+    private Drawable mDrawableLeft;
+    private Drawable mDrawableRight;
+    private Drawable mDrawableNoArrow;
 
     public ToolTip(Builder builder){
         mContext = builder.mContext;
@@ -72,10 +84,21 @@ public class ToolTip {
         mOffsetX = builder.mOffsetX;
         mOffsetY = builder.mOffsetY;
         mArrow = builder.mArrow;
+        mTintBackground = builder.mTintBackground;
         mBackgroundColor = builder.mBackgroundColor;
         mTextColor = builder.mTextColor;
+        mTextSize = builder.mTextSize;
         mElevation = builder.mElevation;
         mTextGravity = builder.mTextGravity;
+        mDrawableAboveLeft = builder.mDrawableAboveLeft;
+        mDrawableAboveCenter = builder.mDrawableAboveCenter;
+        mDrawableAboveRight = builder.mDrawableAboveRight;
+        mDrawableBelowLeft = builder.mDrawableBelowLeft;
+        mDrawableBelowCenter = builder.mDrawableBelowCenter;
+        mDrawableBelowRight = builder.mDrawableBelowRight;
+        mDrawableLeft = builder.mDrawableLeft;
+        mDrawableRight = builder.mDrawableRight;
+        mDrawableNoArrow = builder.mDrawableNoArrow;
     }
 
     public Context getContext() {
@@ -114,12 +137,20 @@ public class ToolTip {
         return !mArrow;
     }
 
+    public boolean tintBackground() {
+        return mTintBackground;
+    }
+
     public int getBackgroundColor() {
         return mBackgroundColor;
     }
 
     public int getTextColor() {
         return mTextColor;
+    }
+
+    public int getTextSize() {
+        return mTextSize;
     }
 
     public boolean positionedLeftTo(){
@@ -176,6 +207,42 @@ public class ToolTip {
         return gravity;
     }
 
+    public Drawable getDrawableAboveLeft() {
+        return mDrawableAboveLeft;
+    }
+
+    public Drawable getDrawableAboveCenter() {
+        return mDrawableAboveCenter;
+    }
+
+    public Drawable getDrawableAboveRight() {
+        return mDrawableAboveRight;
+    }
+
+    public Drawable getDrawableBelowLeft() {
+        return mDrawableBelowLeft;
+    }
+
+    public Drawable getDrawableBelowCenter() {
+        return mDrawableBelowCenter;
+    }
+
+    public Drawable getDrawableBelowRight() {
+        return mDrawableBelowRight;
+    }
+
+    public Drawable getDrawableLeft() {
+        return mDrawableLeft;
+    }
+
+    public Drawable getDrawableRight() {
+        return mDrawableRight;
+    }
+
+    public Drawable getDrawableNoArrow() {
+        return mDrawableNoArrow;
+    }
+
     public static class Builder {
         private Context mContext;
         private View mAnchorView;
@@ -186,10 +253,21 @@ public class ToolTip {
         private int mOffsetX;
         private int mOffsetY;
         private boolean mArrow;
+        private boolean mTintBackground;
         private int mBackgroundColor;
         private int mTextColor;
+        private int mTextSize;
         private float mElevation;
         private @Gravity int mTextGravity;
+        private Drawable mDrawableAboveLeft;
+        private Drawable mDrawableAboveCenter;
+        private Drawable mDrawableAboveRight;
+        private Drawable mDrawableBelowLeft;
+        private Drawable mDrawableBelowCenter;
+        private Drawable mDrawableBelowRight;
+        private Drawable mDrawableLeft;
+        private Drawable mDrawableRight;
+        private Drawable mDrawableNoArrow;
 
         /**
          *
@@ -209,8 +287,8 @@ public class ToolTip {
             mOffsetX = 0;
             mOffsetY = 0;
             mArrow = true;
-            mBackgroundColor = context.getResources().getColor(R.color.colorBackground);
             mTextColor = context.getResources().getColor(R.color.colorText);
+            mTextSize = context.getResources().getDimensionPixelOffset(R.dimen.textSize);
             mTextGravity = GRAVITY_LEFT;
         }
 
@@ -247,13 +325,24 @@ public class ToolTip {
             return this;
         }
 
+        public Builder withTintBackground(boolean value){
+            mTintBackground = value;
+            return this;
+        }
+
         public Builder setBackgroundColor(int color){
+            mTintBackground = true;
             mBackgroundColor = color;
             return this;
         }
 
         public Builder setTextColor(int color){
             mTextColor = color;
+            return this;
+        }
+
+        public Builder setTextSize(int textSize){
+            mTextSize = textSize;
             return this;
         }
 
@@ -264,6 +353,51 @@ public class ToolTip {
 
         public Builder setGravity(@Gravity int gravity){
             mTextGravity = gravity;
+            return this;
+        }
+
+        public Builder setDrawableAboveLeft(Drawable drawable) {
+            mDrawableAboveLeft = drawable;
+            return this;
+        }
+
+        public Builder setDrawableAboveCenter(Drawable drawable) {
+            mDrawableAboveCenter = drawable;
+            return this;
+        }
+
+        public Builder setDrawableAboveRight(Drawable drawable) {
+            mDrawableAboveRight = drawable;
+            return this;
+        }
+
+        public Builder setDrawableBelowLeft(Drawable drawable) {
+            mDrawableBelowLeft = drawable;
+            return this;
+        }
+
+        public Builder setDrawableBelowCenter(Drawable drawable) {
+            mDrawableBelowCenter = drawable;
+            return this;
+        }
+
+        public Builder setDrawableBelowRight(Drawable drawable) {
+            mDrawableBelowRight = drawable;
+            return this;
+        }
+
+        public Builder setDrawableLeft(Drawable drawable) {
+            mDrawableLeft = drawable;
+            return this;
+        }
+
+        public Builder setDrawableRight(Drawable drawable) {
+            mDrawableRight = drawable;
+            return this;
+        }
+
+        public Builder setDrawableNoArrow(Drawable drawable) {
+            mDrawableNoArrow = drawable;
             return this;
         }
 

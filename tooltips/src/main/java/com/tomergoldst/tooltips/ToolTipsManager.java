@@ -24,6 +24,7 @@ import android.graphics.Point;
 import android.os.Build;
 import android.support.annotation.NonNull;
 import android.util.Log;
+import android.util.TypedValue;
 import android.view.View;
 import android.view.ViewOutlineProvider;
 import android.widget.TextView;
@@ -137,6 +138,7 @@ public class ToolTipsManager {
     private TextView createTipView(ToolTip toolTip) {
         TextView tipView = new TextView(toolTip.getContext());
         tipView.setTextColor(toolTip.getTextColor());
+        tipView.setTextSize(TypedValue.COMPLEX_UNIT_PX, toolTip.getTextSize());
         tipView.setText(toolTip.getMessage());
         tipView.setVisibility(View.INVISIBLE);
         tipView.setGravity(toolTip.getTextGravity());
@@ -173,8 +175,11 @@ public class ToolTipsManager {
     }
 
     public boolean dismiss(View tipView, boolean byUser) {
-        if (tipView != null && isVisible(tipView)) {
-            int key = (int) tipView.getTag();
+        if (tipView == null) {
+            return false;
+        }
+        int key = (int) tipView.getTag();
+        if (mTipsMap.containsKey(key) && isVisible(tipView)) {
             mTipsMap.remove(key);
             animateDismiss(tipView, byUser);
             return true;
