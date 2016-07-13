@@ -43,7 +43,7 @@ class AnimationUtils {
         return popup;
     }
 
-    static ObjectAnimator popout(final View view, final long duration, final AnimatorListenerAdapter animatorListenerAdapter) {
+    static ObjectAnimator popout(final View view, final long duration, long startDelay, final AnimatorListenerAdapter animatorListenerAdapter) {
         ObjectAnimator popout = ObjectAnimator.ofPropertyValuesHolder(view,
                 PropertyValuesHolder.ofFloat("alpha", 1f, 0f),
                 PropertyValuesHolder.ofFloat("scaleX", 1f, 0f),
@@ -60,6 +60,7 @@ class AnimationUtils {
             }
         });
         popout.setInterpolator(new AnticipateOvershootInterpolator());
+        popout.setStartDelay(startDelay);
 
         return popout;
     }

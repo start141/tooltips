@@ -58,6 +58,10 @@ public class ToolTipsManager {
     }
 
     public View show(ToolTip toolTip) {
+        return show(toolTip, 0L);
+    }
+
+    public View show(ToolTip toolTip, long duration) {
         View tipView = create(toolTip);
         if (tipView == null) {
             return null;
@@ -65,6 +69,13 @@ public class ToolTipsManager {
 
         // animate tip visibility
         AnimationUtils.popup(tipView, mAnimationDuration).start();
+
+        if (duration > 0L && duration < mAnimationDuration) {
+            duration = mAnimationDuration;
+        }
+        if (duration > 0L) {
+            dismiss(tipView, false, duration);
+        }
 
         return tipView;
     }
@@ -111,11 +122,11 @@ public class ToolTipsManager {
         tipView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                dismiss(view, true);
+                dismiss(view, true, 0L);
             }
         });
 
-        // store anchorView hashcode with tipView
+        //store anchorView hashcode with tipView
         int hashCode = toolTip.getAnchorView().hashCode();
         tipView.setTag(hashCode);
 
@@ -175,20 +186,28 @@ public class ToolTipsManager {
     }
 
     public boolean dismiss(View tipView, boolean byUser) {
+        return dismiss(tipView, byUser, 0L);
+    }
+
+    public boolean dismiss(View tipView, boolean byUser, long startDelay) {
         if (tipView == null) {
             return false;
         }
         int key = (int) tipView.getTag();
         if (mTipsMap.containsKey(key) && isVisible(tipView)) {
             mTipsMap.remove(key);
-            animateDismiss(tipView, byUser);
+            animateDismiss(tipView, byUser, startDelay);
             return true;
         }
         return false;
     }
 
     public boolean dismiss(Integer key) {
-        return mTipsMap.containsKey(key) && dismiss(mTipsMap.get(key), false);
+        return dismiss(key, 0L);
+    }
+
+    public boolean dismiss(Integer key, long startDelay) {
+        return mTipsMap.containsKey(key) && dismiss(mTipsMap.get(key), false, startDelay);
     }
 
     public View find(Integer key) {
@@ -199,21 +218,25 @@ public class ToolTipsManager {
     }
 
     public boolean findAndDismiss(final View anchorView) {
+        return findAndDismiss(anchorView, 0L);
+    }
+
+    public boolean findAndDismiss(final View anchorView, long startDelay) {
         View view = find(anchorView.hashCode());
-        return view != null && dismiss(view, false);
+        return view != null && dismiss(view, false, startDelay);
     }
 
     public void clear() {
         if (!mTipsMap.isEmpty()) {
             for (Map.Entry<Integer, View> entry : mTipsMap.entrySet()) {
-                dismiss(entry.getValue(), false);
+                dismiss(entry.getValue(), false, 0L);
             }
         }
         mTipsMap.clear();
     }
 
-    private void animateDismiss(final View view, final boolean byUser) {
-        AnimationUtils.popout(view, mAnimationDuration, new AnimatorListenerAdapter() {
+    private void animateDismiss(final View view, final boolean byUser, long startDelay) {
+        AnimationUtils.popout(view, mAnimationDuration, startDelay, new AnimatorListenerAdapter() {
             @Override
             public void onAnimationEnd(Animator animation) {
                 super.onAnimationEnd(animation);
