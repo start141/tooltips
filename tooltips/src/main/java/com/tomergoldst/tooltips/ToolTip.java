@@ -29,6 +29,9 @@ import android.view.ViewGroup;
  */
 public class ToolTip {
 
+    public static final long DURATION_SHORT = 3000;
+    public static final long DURATION_LONG = 6000;
+
     @IntDef({POSITION_ABOVE, POSITION_BELOW, POSITION_LEFT_TO, POSITION_RIGHT_TO})
     public @interface Position {}
     public static final int POSITION_ABOVE = 0;

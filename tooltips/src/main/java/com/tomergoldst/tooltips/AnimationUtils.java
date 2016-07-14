@@ -21,6 +21,7 @@ import android.animation.AnimatorListenerAdapter;
 import android.animation.ObjectAnimator;
 import android.animation.PropertyValuesHolder;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.animation.AnticipateOvershootInterpolator;
 import android.view.animation.OvershootInterpolator;
 
@@ -53,13 +54,29 @@ class AnimationUtils {
         popout.addListener(new AnimatorListenerAdapter() {
             @Override
             public void onAnimationEnd(Animator animation) {
-                super.onAnimationEnd(animation);
-                view.setVisibility(View.GONE);
+                if (view.getTag() != null && view.getTag().equals("isCanceled")) {
+                    view.setTag(null);
+                    return;
+                }
+
+                ViewGroup root = (ViewGroup) view.getParent();
+                if (root != null) {
+                    root.removeView(view);
+                }
                 if (animatorListenerAdapter != null) {
                     animatorListenerAdapter.onAnimationEnd(animation);
                 }
             }
+
+            @Override
+            public void onAnimationCancel(Animator animation) {
+                if (view.getVisibility() == View.VISIBLE) {
+                    view.setTag("isCanceled");
+                    popout(view, duration, 0L, null).start();
+                }
+            }
         });
+
         popout.setInterpolator(new AnticipateOvershootInterpolator());
         popout.setStartDelay(startDelay);
 
