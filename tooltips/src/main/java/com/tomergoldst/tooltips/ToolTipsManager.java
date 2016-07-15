@@ -278,7 +278,7 @@ public class ToolTipsManager {
             }
         }
 
-        View view = find(anchorView.hashCode());
+        View view = find(hashCode);
         return (view != null && dismiss(view, false)) || success;
     }
 
