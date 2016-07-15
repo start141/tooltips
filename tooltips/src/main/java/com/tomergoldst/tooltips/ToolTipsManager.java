@@ -31,6 +31,7 @@ import android.view.ViewOutlineProvider;
 import android.widget.TextView;
 
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 
 public class ToolTipsManager {
@@ -77,14 +78,20 @@ public class ToolTipsManager {
         if (startDelay < 0L) {
             startDelay = 0L;
         }
+
+        int hashCode = toolTip.getAnchorView().hashCode();
         if (!mDelayAnimationMap.isEmpty()) {
-            for (Map.Entry<String, ObjectAnimator> entry : mDelayAnimationMap.entrySet()) {
-                if (!entry.getValue().isRunning()) {
-                    entry.getValue().cancel();
+            Iterator<Map.Entry<String, ObjectAnimator>> iterator = mDelayAnimationMap.entrySet().iterator();
+            while (iterator.hasNext()) {
+                Map.Entry<String, ObjectAnimator> entry = iterator.next();
+                if (entry.getKey().contains(String.valueOf(hashCode))) {
+                    iterator.remove();
+                    if (!entry.getValue().isRunning()) {
+                        entry.getValue().cancel();
+                    }
                 }
             }
         }
-        mDelayAnimationMap.clear();
 
         View tipView = create(toolTip);
         if (tipView == null) {
@@ -92,7 +99,6 @@ public class ToolTipsManager {
         }
 
         // animate tip visibility
-        int hashCode = toolTip.getAnchorView().hashCode();
         ObjectAnimator animation = AnimationUtils.popup(tipView, mAnimationDuration, startDelay);
         if (startDelay > 0L) {
             mDelayAnimationMap.put("show" + hashCode, animation);
@@ -250,21 +256,27 @@ public class ToolTipsManager {
 
     public boolean findAndDismiss(final View anchorView) {
         boolean success = false;
+        int hashCode = anchorView.hashCode();
         if (!mDelayAnimationMap.isEmpty()) {
-            for (Map.Entry<String, ObjectAnimator> entry : mDelayAnimationMap.entrySet()) {
-                if (!entry.getValue().isRunning()) {
-                    if (entry.getKey().startsWith("dismiss")) {
-                        View view = ((View) entry.getValue().getTarget());
-                        if (view.getAlpha() == 0f) {
-                            view.setTag("noDismissAnimate");
+            Iterator<Map.Entry<String, ObjectAnimator>> iterator = mDelayAnimationMap.entrySet().iterator();
+            while (iterator.hasNext()) {
+                Map.Entry<String, ObjectAnimator> entry = iterator.next();
+                if (entry.getKey().contains(String.valueOf(hashCode))) {
+                    iterator.remove();
+                    if (!entry.getValue().isRunning()) {
+                        if (entry.getKey().startsWith("dismiss")) {
+                            View view = ((View) entry.getValue().getTarget());
+                            if (view.getAlpha() == 0f) {
+                                view.setTag("noDismissAnimate");
+                            }
                         }
+                        mDelayAnimationMap.remove(entry.getKey());
+                        entry.getValue().cancel();
+                        success = true;
                     }
-                    entry.getValue().cancel();
-                    success = true;
                 }
             }
         }
-        mDelayAnimationMap.clear();
 
         View view = find(anchorView.hashCode());
         return (view != null && dismiss(view, false)) || success;
