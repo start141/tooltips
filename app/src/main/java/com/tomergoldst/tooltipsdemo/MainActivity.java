@@ -96,9 +96,10 @@ public class MainActivity extends AppCompatActivity implements
     public void onWindowFocusChanged(boolean hasFocus) {
         super.onWindowFocusChanged(hasFocus);
 
-        ToolTip.Builder builder = new ToolTip.Builder(this, mTextView, mRootLayout, "显示位置", ToolTip.POSITION_ABOVE);
+        ToolTip.Builder builder = new ToolTip.Builder(this, mTextView, mRootLayout, "show location", ToolTip.POSITION_ABOVE);
         builder.setAlign(mAlign);
         builder.setOffsetY(-12);
+        builder.setTextSize(54);
         builder.setDrawableAboveCenter(getResources().getDrawable(R.drawable.tooltip_bg_arrow_down));
         mToolTipsManager.show(builder.build());
     }
@@ -118,9 +119,10 @@ public class MainActivity extends AppCompatActivity implements
         switch (view.getId()){
             case R.id.button_above:
                 mToolTipsManager.findAndDismiss(mTextView);
-                builder = new ToolTip.Builder(this, mTextView, mRootLayout, text, ToolTip.POSITION_ABOVE);
+                builder = new ToolTip.Builder(this, mTextView, mRootLayout, "show location", ToolTip.POSITION_ABOVE);
                 builder.setAlign(mAlign);
                 builder.setOffsetY(-12);
+                builder.setTextSize(54);
                 builder.setDrawableAboveCenter(getResources().getDrawable(R.drawable.tooltip_bg_arrow_down));
                 mToolTipsManager.show(builder.build());
                 break;
@@ -128,7 +130,6 @@ public class MainActivity extends AppCompatActivity implements
                 mToolTipsManager.findAndDismiss(mTextView);
                 builder = new ToolTip.Builder(this, mTextView, mRootLayout, text, ToolTip.POSITION_BELOW);
                 builder.setAlign(mAlign);
-                builder.setTextSize(80);
                 builder.setBackgroundColor(getResources().getColor(R.color.colorOrange));
                 mToolTipsManager.show(builder.build());
                 break;
@@ -157,5 +158,11 @@ public class MainActivity extends AppCompatActivity implements
                 mAlign = ToolTip.ALIGN_RIGHT;
                 break;
         }
+    }
+
+    @Override
+    protected void onDestroy() {
+        mToolTipsManager.release();
+        super.onDestroy();
     }
 }

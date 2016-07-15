@@ -42,7 +42,7 @@ public class ToolTipsManager {
     // Parameter for managing tip creation or reuse
     private Map<Integer, View> mTipsMap = new HashMap<>();
 
-    private Map<Integer, ObjectAnimator> mDelayAnimationMap = new HashMap<>();
+    private Map<String, ObjectAnimator> mDelayAnimationMap = new HashMap<>();
 
     private boolean mOnClickDismiss;
     private int mAnimationDuration;
@@ -52,12 +52,12 @@ public class ToolTipsManager {
         void onTipDismissed(View view, boolean byUser);
     }
 
-    public ToolTipsManager(){
+    public ToolTipsManager() {
         mAnimationDuration = DEFAULT_ANIM_DURATION;
     }
 
-    public ToolTipsManager(TipListener listener){
-        mAnimationDuration = DEFAULT_ANIM_DURATION;;
+    public ToolTipsManager(TipListener listener) {
+        mAnimationDuration = DEFAULT_ANIM_DURATION;
         mListener = listener;
     }
 
@@ -77,15 +77,14 @@ public class ToolTipsManager {
         if (startDelay < 0L) {
             startDelay = 0L;
         }
-        int hashCode = toolTip.getAnchorView().hashCode();
-        if (mDelayAnimationMap.containsKey(hashCode)) {
-            for (Map.Entry<Integer, ObjectAnimator> entry : mDelayAnimationMap.entrySet()) {
+        if (!mDelayAnimationMap.isEmpty()) {
+            for (Map.Entry<String, ObjectAnimator> entry : mDelayAnimationMap.entrySet()) {
                 if (!entry.getValue().isRunning()) {
                     entry.getValue().cancel();
                 }
             }
-            mDelayAnimationMap.clear();
         }
+        mDelayAnimationMap.clear();
 
         View tipView = create(toolTip);
         if (tipView == null) {
@@ -93,14 +92,15 @@ public class ToolTipsManager {
         }
 
         // animate tip visibility
+        int hashCode = toolTip.getAnchorView().hashCode();
         ObjectAnimator animation = AnimationUtils.popup(tipView, mAnimationDuration, startDelay);
         if (startDelay > 0L) {
-            mDelayAnimationMap.put(hashCode, animation);
+            mDelayAnimationMap.put("show" + hashCode, animation);
         }
         animation.start();
 
-        if (duration > 0L && duration < startDelay + mAnimationDuration) {
-            duration = startDelay + mAnimationDuration;
+        if (duration > 0L) {
+            duration = startDelay + duration + mAnimationDuration;
         }
         if (duration > 0L) {
             dismiss(tipView, false, duration);
@@ -211,7 +211,7 @@ public class ToolTipsManager {
         }
     }
 
-    public void setAnimationDuration(int duration){
+    public void setAnimationDuration(int duration) {
         mAnimationDuration = duration;
     }
 
@@ -249,35 +249,67 @@ public class ToolTipsManager {
     }
 
     public boolean findAndDismiss(final View anchorView) {
-        int hashCode = anchorView.hashCode();
-        if (mDelayAnimationMap.containsKey(hashCode)) {
-            for (Map.Entry<Integer, ObjectAnimator> entry : mDelayAnimationMap.entrySet()) {
+        boolean success = false;
+        if (!mDelayAnimationMap.isEmpty()) {
+            for (Map.Entry<String, ObjectAnimator> entry : mDelayAnimationMap.entrySet()) {
                 if (!entry.getValue().isRunning()) {
+                    if (entry.getKey().startsWith("dismiss")) {
+                        View view = ((View) entry.getValue().getTarget());
+                        if (view.getAlpha() == 0f) {
+                            view.setTag("noDismissAnimate");
+                        }
+                    }
+                    entry.getValue().cancel();
+                    success = true;
+                }
+            }
+        }
+        mDelayAnimationMap.clear();
+
+        View view = find(anchorView.hashCode());
+        return (view != null && dismiss(view, false)) || success;
+    }
+
+    public void dismissAll() {
+        if (!mDelayAnimationMap.isEmpty()) {
+            for (Map.Entry<String, ObjectAnimator> entry : mDelayAnimationMap.entrySet()) {
+                if (!entry.getValue().isRunning()) {
+                    if (entry.getKey().startsWith("show")) {
+                        mTipsMap.remove(Integer.valueOf(entry.getKey().replace("show", "")));
+                    }
+                    if (entry.getKey().startsWith("dismiss")) {
+                        mTipsMap.remove(Integer.valueOf(entry.getKey().replace("dismiss", "")));
+                    }
+                    View view = ((View) entry.getValue().getTarget());
+                    if (view.getAlpha() == 0f) {
+                        view.setTag("noDismissAnimate");
+                    }
                     entry.getValue().cancel();
                 }
             }
-            mDelayAnimationMap.clear();
         }
-        View view = find(hashCode);
-        return view != null && dismiss(view, false);
-    }
+        mDelayAnimationMap.clear();
 
-    public void clear() {
         if (!mTipsMap.isEmpty()) {
             for (Map.Entry<Integer, View> entry : mTipsMap.entrySet()) {
                 dismiss(entry.getValue(), false, 0L);
             }
         }
         mTipsMap.clear();
+    }
 
+    public void release() {
         if (!mDelayAnimationMap.isEmpty()) {
-            for (Map.Entry<Integer, ObjectAnimator> entry : mDelayAnimationMap.entrySet()) {
+            for (Map.Entry<String, ObjectAnimator> entry : mDelayAnimationMap.entrySet()) {
                 if (!entry.getValue().isRunning()) {
+                    View view = ((View) entry.getValue().getTarget());
+                    view.setTag("noDismissAnimate");
                     entry.getValue().cancel();
                 }
             }
         }
         mDelayAnimationMap.clear();
+        mTipsMap.clear();
     }
 
     private void animateDismiss(final View view, final boolean byUser, long startDelay) {
@@ -286,7 +318,7 @@ public class ToolTipsManager {
             @Override
             public void onAnimationEnd(Animator animation) {
                 super.onAnimationEnd(animation);
-                if (mListener != null){
+                if (mListener != null) {
                     mListener.onTipDismissed(view, byUser);
                 }
             }
@@ -294,7 +326,7 @@ public class ToolTipsManager {
 
         if (startDelay > 0L) {
             int key = (int) view.getTag();
-            mDelayAnimationMap.put(key, animation);
+            mDelayAnimationMap.put("dismiss" + key, animation);
         }
         animation.start();
     }

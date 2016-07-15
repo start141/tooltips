@@ -52,10 +52,10 @@ class AnimationUtils {
                 PropertyValuesHolder.ofFloat("scaleY", 1f, 0f));
         popout.setDuration(duration);
         popout.addListener(new AnimatorListenerAdapter() {
+
             @Override
             public void onAnimationEnd(Animator animation) {
                 if (view.getTag() != null && view.getTag().equals("isCanceled")) {
-                    view.setTag(null);
                     return;
                 }
 
@@ -70,7 +70,7 @@ class AnimationUtils {
 
             @Override
             public void onAnimationCancel(Animator animation) {
-                if (view.getVisibility() == View.VISIBLE) {
+                if (view.getVisibility() == View.VISIBLE && !view.getTag().equals("noDismissAnimate")) {
                     view.setTag("isCanceled");
                     popout(view, duration, 0L, null).start();
                 }
